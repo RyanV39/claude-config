@@ -38,7 +38,44 @@ git rebase origin/<BASE_BRANCH>
 - If the rebase has conflicts, abort it (`git rebase --abort`), stop, and tell the user: "Rebase onto `<BASE_BRANCH>` has conflicts — please resolve them manually, then re-run this command."
 - If the current branch IS `<BASE_BRANCH>`, skip the rebase (nothing to rebase onto itself) and just run `git fetch origin`.
 
-## Step 1: Commit changes
+## Step 1: Review changes
+
+Read every changed file (from `git diff --name-only HEAD` and `git diff --cached --name-only`) and review the diff for:
+
+- Correctness: logic errors, off-by-one, null-safety issues
+- Code quality: unnecessary complexity, duplication, naming clarity
+- Missing edge cases or error handling at system boundaries
+
+For each issue found, propose a specific fix with a short rationale. Apply fixes only after the user approves (show a summary and ask "Apply these improvements?" before editing). If no issues are found, state that the changes look good and continue.
+
+## Step 1b: Run Detekt (if available)
+
+Check whether Detekt is configured in this project:
+
+```bash
+grep -r "detekt" build.gradle build.gradle.kts settings.gradle settings.gradle.kts 2>/dev/null | head -5
+```
+
+If Detekt is found, identify modified Kotlin files and their modules:
+
+```bash
+git diff --name-only HEAD -- '*.kt'
+git diff --cached --name-only -- '*.kt'
+```
+
+Map paths to Gradle modules (e.g. `education/features/student/` → `:education:features:student`) and run:
+
+```bash
+./gradlew :<module>:detekt
+```
+
+If no modules can be determined, run `./gradlew detekt`.
+
+If there are Detekt issues, display them grouped by file and **stop**. Ask the user whether to fix and continue or abort.
+
+If Detekt is not found, skip this step silently and continue.
+
+## Step 2: Commit changes
 
 Run `git status` to check for uncommitted changes (staged or unstaged).
 
@@ -51,10 +88,10 @@ If there are changes:
 
 If there are no uncommitted changes, run `git fetch origin` and then `git log origin/<BASE_BRANCH>..HEAD --oneline` to check for commits ahead of remote.
 
-- If there are commits ahead of remote, proceed to Step 2 using those commits to inform the branch name and PR content.
+- If there are commits ahead of remote, proceed to Step 3 using those commits to inform the branch name and PR content.
 - If there are no uncommitted changes AND no commits ahead of remote, tell the user "Nothing to commit or push. Exiting." and stop — do not continue with any further steps.
 
-## Step 2: Branch handling
+## Step 3: Branch handling
 
 Check the current branch with `git branch --show-current`.
 
@@ -66,7 +103,7 @@ Check the current branch with `git branch --show-current`.
   - Create and checkout the new branch: `git checkout -b <branch-name>`
 - If the current branch is anything other than `<BASE_BRANCH>`, stay on that branch and proceed.
 
-## Step 3: Choose PR template
+## Step 4: Choose PR template
 
 Check whether a `.github/PULL_REQUEST_TEMPLATE/` directory exists:
 
@@ -89,7 +126,7 @@ Only auto-select a template if the corresponding file actually exists. If the au
 
 Read the chosen template file (if any), then fill in its sections based on the actual changes: use `git diff <BASE_BRANCH>..HEAD` and the commit messages to understand what was changed, and write concrete content for each section. Do not leave placeholder text — replace every section with real content derived from the diff and commits.
 
-## Step 4: Push the branch
+## Step 5: Push the branch
 
 Push the current branch to remote:
 
@@ -97,7 +134,7 @@ Push the current branch to remote:
 git push -u origin HEAD
 ```
 
-## Step 5: Create or update the PR
+## Step 6: Create or update the PR
 
 First check whether a PR already exists for the current branch:
 
