@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "cleanupPeriodDays": 30,
+  "env": {},
+  "permissions": {
+    "allow": [],
+    "deny": [],
+    "defaultMode": "default"
+  },
+  "enabledPlugins": {
+    "mcp-server-dev@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true
+  },
+  "spinnerTipsEnabled": true,
+  "syntaxHighlightingDisabled": false,
+  "alwaysThinkingEnabled": false,
+  "theme": "dark",
+  "verbose": false,
+  "autoCompactEnabled": true,
+  "tui": "fullscreen"
+}

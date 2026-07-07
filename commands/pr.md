@@ -40,13 +40,9 @@ git rebase origin/<BASE_BRANCH>
 
 ## Step 1: Review changes
 
-Read every changed file (from `git diff --name-only HEAD` and `git diff --cached --name-only`) and review the diff for:
+Launch the `code-reviewer` agent (from the `pr-review-toolkit` plugin) to review the full diff (`git diff HEAD` plus `git diff --cached`) against this project's CLAUDE.md and for correctness bugs, code quality, and missing edge cases at system boundaries. Only issues with confidence ≥ 80 are reported back.
 
-- Correctness: logic errors, off-by-one, null-safety issues
-- Code quality: unnecessary complexity, duplication, naming clarity
-- Missing edge cases or error handling at system boundaries
-
-For each issue found, propose a specific fix with a short rationale. Apply fixes only after the user approves (show a summary and ask "Apply these improvements?" before editing). If no issues are found, state that the changes look good and continue.
+For each issue the agent reports, propose a specific fix with a short rationale. Apply fixes only after the user approves (show a summary and ask "Apply these improvements?" before editing). If no issues are found, state that the changes look good and continue.
 
 ## Step 1b: Run Detekt (if available)
 
