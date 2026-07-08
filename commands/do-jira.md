@@ -78,7 +78,7 @@ Display in a clean readable format:
 
 Read the project `CLAUDE.md` in the current working directory if it exists.
 
-Then check if an `agent_docs/` directory exists. If it does, read any files inside it that are relevant to implementation (e.g. architecture rules, coding standards, feature patterns, domain overview, API conventions). Only read files that exist — skip any that don't.
+Then check if an `agent_docs/` or `aidlc-docs` directory exists. If it does, read any files inside it that are relevant to implementation (e.g. architecture rules, coding standards, feature patterns, domain overview, API conventions). Only read files that exist — skip any that don't.
 
 If neither `CLAUDE.md` nor `agent_docs/` exists, ask the user:
 > "I couldn't find any project documentation (`CLAUDE.md` or `agent_docs/`). Could you briefly describe the tech stack, architecture patterns, and any coding conventions I should follow? Or I can generate a `CLAUDE.md` for this project — just say the word."
@@ -126,6 +126,8 @@ End with: "Does this plan look correct? Please answer any open questions above, 
 
 Check the current status from the ticket data fetched in Step 2.
 
+- If the Impact Analysis field is present on the ticket, fill it out before moving the ticket to Progress.
+- If the ticket is a bug and the Root Cause field is present, determine the most appropriate option and select it. If there isn't enough information to determine the root cause confidently, select Other.
 - If the status already contains "In Progress" (case-insensitive), skip and tell the user: "Ticket is already In Progress."
 - Otherwise:
 

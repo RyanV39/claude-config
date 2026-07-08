@@ -71,13 +71,52 @@ If there are Detekt issues, display them grouped by file and **stop**. Ask the u
 
 If Detekt is not found, skip this step silently and continue.
 
+## Step 1c: Update screenshot tests (if applicable)
+
+Check whether the project uses Compose Screenshot Testing:
+
+```bash
+grep -r "com.android.compose.screenshot" build.gradle.kts settings.gradle.kts **/build.gradle.kts gradle/libs.versions.toml 2>/dev/null | head -1
+```
+
+If not found, skip this step.
+
+If found, check whether changed files relate to screens in the screenshot tests module:
+
+```bash
+git diff --name-only HEAD -- '*.kt'
+git diff --cached --name-only -- '*.kt'
+```
+
+Compare against composables imported in `screenshot-tests/src/screenshotTest/`. If any changed file contains a composable that is referenced by a screenshot test, run:
+
+```bash
+./gradlew :screenshot-tests:updateDebugScreenshotTest
+```
+
+Then check for changed reference images:
+
+```bash
+git diff --name-only -- 'screenshot-tests/src/screenshotTestDebug/reference/'
+git ls-files --others --exclude-standard -- 'screenshot-tests/src/screenshotTestDebug/reference/'
+```
+
+If any reference images changed or were added, stage them:
+
+```bash
+git add screenshot-tests/src/screenshotTestDebug/reference/
+```
+
+Remember which screenshots changed — they will be included in the PR description later (Step 4).
+
 ## Step 2: Commit changes
 
 Run `git status` to check for uncommitted changes (staged or unstaged).
 
 If there are changes:
 - Run `git diff` and `git diff --staged` to understand what changed.
-- Generate a commit message following the 50/72 rule: subject line ≤50 chars, body lines ≤72 chars. Use conventional commit format (`feat:`, `fix:`, `chore:`, etc.) based on the nature of the changes.
+- Determine the ticket ID if one is available. Check, in order: the current branch name (e.g. `bugfix/AIEDU-1222-...` → `AIEDU-1222`), then existing commit messages on the branch (`git log <BASE_BRANCH>..HEAD --format=%s%n%b`). Match a pattern like `[A-Z]+-[0-9]+`. If found, use it; if none is found, skip the ticket ID silently.
+- Generate a commit message following the 50/72 rule: subject line ≤50 chars, body lines ≤72 chars. Use conventional commit format (`feat:`, `fix:`, `chore:`, etc.) based on the nature of the changes. If a ticket ID was found, put it at the very start of the subject line in parentheses (e.g. `(AIEDU-1222) fix: lock app to portrait`); keep the subject ≤50 chars, and if it won't fit, put the ticket ID on its own line in the body instead.
 - Stage all modified/tracked files and commit with the generated message.
 - Do NOT use `git add -A` — prefer `git add` on specific files.
 - Do NOT include a `Co-Authored-By` trailer or any author attribution in the commit message.
@@ -121,6 +160,18 @@ Only auto-select a template if the corresponding file actually exists. If the au
 **If no templates exist at all**, write a concise PR description from scratch with these sections: Summary, Changes, and Testing.
 
 Read the chosen template file (if any), then fill in its sections based on the actual changes: use `git diff <BASE_BRANCH>..HEAD` and the commit messages to understand what was changed, and write concrete content for each section. Do not leave placeholder text — replace every section with real content derived from the diff and commits.
+
+**If screenshots were updated in Step 1c**, append a "Screen Updates" section at the end of the PR body:
+
+```markdown
+## Screen Updates
+
+| Screen | Screenshot |
+|--------|-----------|
+| ScreenName | <img src="https://github.com/<OWNER>/<REPO>/raw/<BRANCH>/screenshot-tests/src/screenshotTestDebug/reference/path/to/image.png" width="240" /> |
+```
+
+GitHub PR descriptions do NOT resolve relative image paths — markdown like `![alt](screenshot-tests/...)` renders as a broken image. Always use an absolute `raw` URL pointing to the current branch: `https://github.com/<OWNER>/<REPO>/raw/<BRANCH>/<path>`. Resolve `<OWNER>/<REPO>` from `gh repo view --json nameWithOwner --jq .nameWithOwner` and `<BRANCH>` from `git branch --show-current`. Use `<img src="..." width="240" />` rather than `![]()` so the screenshots render at a readable thumbnail size instead of full resolution. List each changed screenshot as a row; use the composable function name as the screen name.
 
 ## Step 5: Push the branch
 
