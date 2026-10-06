@@ -5,7 +5,7 @@
   "permissions": {
     "allow": [],
     "deny": [],
-    "defaultMode": "default"
+    "defaultMode": "auto"
   },
   "enabledPlugins": {
     "mcp-server-dev@claude-plugins-official": true,
@@ -14,8 +14,13 @@
   "spinnerTipsEnabled": true,
   "syntaxHighlightingDisabled": false,
   "alwaysThinkingEnabled": false,
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "verbose": false,
   "autoCompactEnabled": true,
-  "tui": "fullscreen"
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "model": "sonnet"
 }

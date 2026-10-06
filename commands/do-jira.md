@@ -93,6 +93,8 @@ Before proposing a plan, check if the ticket description is clear enough to act 
 - If the description is missing, too vague, or contradictory — stop and ask the user to clarify before proceeding. List the specific questions you need answered.
 - If the description is clear enough to proceed, continue below.
 
+**Always split the work as small as possible.** If the ticket is large, propose a sequence of small slices and implement only one slice per run. Each slice gets its own branch and PR, aiming for under ~500 LoC per PR (a guideline, not strict).
+
 Based on the ticket content, analyze the codebase as needed (read relevant files, search for related code) and propose a concrete implementation plan. Structure it as:
 
 ### Understanding
